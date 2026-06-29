@@ -1,0 +1,383 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * KUA - Soft Modern Therapeutic Companion UI
+ * Palette: Therapeutic Teal #4CAF93, Warm Yellow #F6C85F, Muted Coral #E57373
+ */
+
+@theme inline {
+  --font-sans: "Manrope", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Nunito", "Manrope", ui-sans-serif, system-ui, sans-serif;
+
+  --radius-sm: calc(var(--radius) - 6px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 6px);
+  --radius-2xl: calc(var(--radius) + 12px);
+  --radius-3xl: calc(var(--radius) + 18px);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary-soft: var(--primary-soft);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-tertiary: var(--tertiary);
+  --color-tertiary-foreground: var(--tertiary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-info: var(--info);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+:root {
+  --radius: 1.25rem;
+
+  /* Light surfaces */
+  --background: oklch(0.985 0.002 250); /* neutral off-white */
+  --foreground: oklch(0.27 0.03 255);    /* slate-800 */
+
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.27 0.03 255);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.27 0.03 255);
+
+  /* Primary - Therapeutic Teal #4CAF93 */
+  --primary: oklch(0.69 0.11 165);
+  --primary-foreground: oklch(0.99 0.01 160);
+  --primary-soft: oklch(0.95 0.04 165);
+
+  /* Secondary - Warm Yellow #F6C85F */
+  --secondary: oklch(0.85 0.13 85);
+  --secondary-foreground: oklch(0.32 0.05 70);
+
+  /* Tertiary - Muted Coral #E57373 */
+  --tertiary: oklch(0.72 0.13 25);
+  --tertiary-foreground: oklch(0.99 0 0);
+
+  --muted: oklch(0.96 0.01 250);
+  --muted-foreground: oklch(0.5 0.02 255);
+
+  --accent: oklch(0.72 0.13 25);
+  --accent-foreground: oklch(0.99 0 0);
+
+  --destructive: oklch(0.7 0.18 25);
+  --destructive-foreground: oklch(0.99 0 0);
+
+  --success: oklch(0.78 0.15 160);
+  --warning: oklch(0.85 0.14 80);
+  --info: oklch(0.74 0.13 250);
+
+  --border: oklch(0.92 0.01 250);
+  --input: oklch(0.92 0.01 250);
+  --ring: oklch(0.69 0.11 165);
+
+  --sidebar: oklch(0.99 0.01 95);
+  --sidebar-foreground: oklch(0.27 0.03 255);
+  --sidebar-primary: oklch(0.69 0.11 165);
+  --sidebar-primary-foreground: oklch(0.99 0 0);
+  --sidebar-accent: oklch(0.95 0.04 165);
+  --sidebar-accent-foreground: oklch(0.42 0.07 165);
+  --sidebar-border: oklch(0.92 0.01 250);
+  --sidebar-ring: oklch(0.69 0.11 165);
+
+  /* Gradients & shadows */
+  --gradient-primary: linear-gradient(135deg, oklch(0.69 0.11 165) 0%, oklch(0.82 0.09 165) 100%);
+  --gradient-warm: linear-gradient(135deg, oklch(0.95 0.04 165) 0%, oklch(0.96 0.05 85) 100%);
+  --gradient-hero: radial-gradient(120% 80% at 20% 0%, oklch(0.95 0.04 165) 0%, transparent 60%),
+                   radial-gradient(100% 80% at 100% 100%, oklch(0.94 0.06 85) 0%, transparent 55%);
+  --shadow-soft: 0 1px 2px oklch(0.27 0.03 255 / 0.04), 0 8px 24px -12px oklch(0.27 0.03 255 / 0.08);
+  --shadow-card: 0 2px 4px oklch(0.27 0.03 255 / 0.04), 0 18px 40px -20px oklch(0.27 0.03 255 / 0.12);
+  --shadow-glow: 0 10px 40px -10px oklch(0.69 0.11 165 / 0.35);
+}
+
+.dark {
+  --background: oklch(0.21 0.04 260);   /* slate-900 */
+  --foreground: oklch(0.97 0.01 250);
+
+  --card: oklch(0.27 0.04 260);
+  --card-foreground: oklch(0.97 0.01 250);
+  --popover: oklch(0.27 0.04 260);
+  --popover-foreground: oklch(0.97 0.01 250);
+
+  --primary: oklch(0.78 0.1 165);
+  --primary-foreground: oklch(0.2 0.04 260);
+  --primary-soft: oklch(0.32 0.05 165);
+
+  --secondary: oklch(0.82 0.13 85);
+  --secondary-foreground: oklch(0.22 0.04 260);
+
+  --tertiary: oklch(0.74 0.12 25);
+  --tertiary-foreground: oklch(0.99 0 0);
+
+  --muted: oklch(0.31 0.04 260);
+  --muted-foreground: oklch(0.78 0.02 250);
+
+  --accent: oklch(0.74 0.12 25);
+  --accent-foreground: oklch(0.99 0 0);
+
+  --destructive: oklch(0.68 0.18 25);
+  --destructive-foreground: oklch(0.99 0 0);
+
+  --success: oklch(0.78 0.15 160);
+  --warning: oklch(0.82 0.13 80);
+  --info: oklch(0.74 0.13 250);
+
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 14%);
+  --ring: oklch(0.78 0.1 165);
+
+  --sidebar: oklch(0.24 0.04 260);
+  --sidebar-foreground: oklch(0.97 0.01 250);
+  --sidebar-primary: oklch(0.78 0.1 165);
+  --sidebar-primary-foreground: oklch(0.2 0.04 260);
+  --sidebar-accent: oklch(0.32 0.05 165);
+  --sidebar-accent-foreground: oklch(0.92 0.05 165);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.78 0.1 165);
+
+  --gradient-primary: linear-gradient(135deg, oklch(0.55 0.1 165) 0%, oklch(0.7 0.09 165) 100%);
+  --gradient-warm: linear-gradient(135deg, oklch(0.32 0.05 165) 0%, oklch(0.34 0.06 85) 100%);
+  --gradient-hero: radial-gradient(120% 80% at 20% 0%, oklch(0.32 0.05 165 / 0.6) 0%, transparent 60%),
+                   radial-gradient(100% 80% at 100% 100%, oklch(0.34 0.06 85 / 0.5) 0%, transparent 55%);
+  --shadow-soft: 0 1px 2px oklch(0 0 0 / 0.3), 0 8px 24px -12px oklch(0 0 0 / 0.5);
+  --shadow-card: 0 2px 4px oklch(0 0 0 / 0.3), 0 18px 40px -20px oklch(0 0 0 / 0.55);
+  --shadow-glow: 0 10px 40px -10px oklch(0.78 0.1 165 / 0.35);
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  html {
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-feature-settings: "ss01", "cv11";
+    font-weight: 450;
+    position: relative;
+  }
+
+  /* Subtle 3% noise texture overlay */
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0.03;
+    mix-blend-mode: multiply;
+    background-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22180%22%20height%3D%22180%22%3E%3Cfilter%20id%3D%22n%22%3E%3CfeTurbulence%20type%3D%22fractalNoise%22%20baseFrequency%3D%220.9%22%20numOctaves%3D%222%22%20stitchTiles%3D%22stitch%22%2F%3E%3CfeColorMatrix%20values%3D%220%200%200%200%200%20%200%200%200%200%200%20%200%200%200%200%200%20%200%200%200%200.6%200%22%2F%3E%3C%2Ffilter%3E%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20filter%3D%22url%28%23n%29%22%2F%3E%3C%2Fsvg%3E");
+  }
+
+  h1, h2, h3, h4 {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
+  }
+
+  /* Reduce heading sizes by ~10% so they don't feel template-y */
+  h1 { font-size: 0.9em; }
+  h2 { font-size: 0.9em; }
+  h3 { font-size: 0.9em; }
+
+  /* Remove gradient backgrounds — replace with solid surfaces */
+  .bg-gradient-primary {
+    background-image: none !important;
+    background-color: var(--color-primary) !important;
+  }
+  .bg-gradient-warm {
+    background-image: none !important;
+    background-color: var(--color-primary-soft) !important;
+  }
+  .bg-gradient-hero {
+    background-image: none !important;
+    background-color: var(--color-primary-soft) !important;
+  }
+
+  /* Convert pill-shaped buttons to rounded-lg (keep avatars/chips rounded) */
+  button.rounded-full,
+  a.rounded-full[class*="bg-"],
+  [role="button"].rounded-full {
+    border-radius: var(--radius-md) !important;
+  }
+}
+
+@layer utilities {
+  .bg-gradient-primary { background-image: var(--gradient-primary); }
+  .bg-gradient-warm    { background-image: var(--gradient-warm); }
+  .bg-gradient-hero    { background-image: var(--gradient-hero); }
+  .shadow-soft         { box-shadow: var(--shadow-soft); }
+  .shadow-card         { box-shadow: var(--shadow-card); }
+  .shadow-glow         { box-shadow: var(--shadow-glow); }
+
+  .glass {
+    background-color: color-mix(in oklab, var(--color-card) 70%, transparent);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+  }
+
+  @keyframes float-soft {
+    0%,100% { transform: translateY(0); }
+    50%     { transform: translateY(-8px); }
+  }
+  .animate-float { animation: float-soft 6s ease-in-out infinite; }
+
+  @keyframes fade-up {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .animate-fade-up { animation: fade-up 0.6s ease-out both; }
+
+  @keyframes breathe {
+    0%,100% { transform: scale(1); opacity: 0.7; }
+    50%     { transform: scale(1.06); opacity: 1; }
+  }
+  .animate-breathe { animation: breathe 5s ease-in-out infinite; }
+}
+
+/* Calm / slow stimulation mode - significant visual quieting */
+html.calm {
+  filter: saturate(0.55) contrast(0.95);
+}
+html.calm body {
+  font-size: 17px;
+  letter-spacing: 0.005em;
+}
+html.calm .animate-breathe,
+html.calm .animate-float { animation-duration: 18s; }
+html.calm .animate-fade-up { animation: none; }
+html.calm .shadow-glow,
+html.calm .shadow-card { box-shadow: var(--shadow-soft); }
+html.calm .bg-gradient-primary,
+html.calm .bg-gradient-warm,
+html.calm .bg-gradient-hero {
+  background-image: none;
+  background-color: color-mix(in oklab, var(--color-primary-soft) 70%, var(--color-card));
+  color: var(--color-foreground);
+}
+html.calm [class*="text-primary-foreground"] { color: var(--color-foreground) !important; }
+html.calm img, html.calm svg { filter: saturate(0.7); }
+html.calm .blur-2xl, html.calm .blur-3xl { filter: blur(0) !important; opacity: 0.3 !important; }
+html.calm * { transition-duration: 500ms !important; }
+html.calm .rounded-3xl, html.calm .rounded-\[2rem\], html.calm .rounded-\[2\.5rem\] { border-radius: 1rem; }
+html.calm h1, html.calm h2, html.calm h3 { letter-spacing: 0; }
+
+/* A visible band so the user knows Calm is on */
+html.calm body::before {
+  content: "";
+  position: fixed; inset: 0 0 auto 0;
+  height: 3px;
+  background: color-mix(in oklab, var(--color-primary) 40%, transparent);
+  z-index: 80;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-breathe, .animate-float, .animate-fade-up { animation: none !important; }
+}
+
+/* Reduce motion (manual toggle in Settings) */
+html.reduce-motion *,
+html.reduce-motion *::before,
+html.reduce-motion *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+  scroll-behavior: auto !important;
+}
+
+/* High-contrast mode */
+html.high-contrast {
+  --color-border: #000;
+}
+html.high-contrast.dark { --color-border: #fff; }
+html.high-contrast a,
+html.high-contrast button { text-decoration-thickness: 2px; }
+html.high-contrast :focus-visible {
+  outline: 3px solid var(--color-primary) !important;
+  outline-offset: 2px !important;
+}
+html.high-contrast .text-muted-foreground { color: var(--color-foreground) !important; opacity: 0.85; }
+html.high-contrast .border-border\/60,
+html.high-contrast .border-border\/50 { border-color: var(--color-border) !important; }
+
+/* ----- Accessibility: dyslexic font ----- */
+/* Lexend font imported at top of file */
+html.dyslexic,
+html.dyslexic body,
+html.dyslexic .font-display {
+  font-family: "Lexend", "Inter", ui-sans-serif, system-ui, sans-serif !important;
+  letter-spacing: 0.015em;
+  word-spacing: 0.06em;
+}
+
+/* ----- Line spacing ----- */
+html[data-spacing="cozy"] body { line-height: 1.4; }
+html[data-spacing="regular"] body { line-height: 1.55; }
+html[data-spacing="airy"] body { line-height: 1.85; }
+
+/* ----- Reading mode: long-form articles use a soft cream surface, narrow column ----- */
+html.reading-mode {
+  --color-background: oklch(0.985 0.01 85);
+}
+html.reading-mode.dark {
+  --color-background: oklch(0.18 0.012 250);
+}
+html.reading-mode .reading-surface {
+  max-width: 68ch !important;
+  margin-left: auto;
+  margin-right: auto;
+  font-size: 1.06em;
+  line-height: 1.75;
+}
+html.reading-mode .reading-surface p { margin-block: 0.9em; }
+html.reading-mode .reading-hide { display: none !important; }
+
+/* ----- Print styles for test result PDF ----- */
+@media print {
+  body { background: white !important; color: #000 !important; }
+  header, nav, aside, .print-hide { display: none !important; }
+  .print-only { display: block !important; }
+  .printable {
+    box-shadow: none !important;
+    border: 1px solid #ddd !important;
+    background: white !important;
+    color: #000 !important;
+    padding: 24px !important;
+  }
+  .printable * { color: #000 !important; }
+  .printable .progress-bar { background: #eee !important; }
+  .printable .progress-bar > div { background: #4b6bff !important; }
+  a { color: #000 !important; text-decoration: none !important; }
+  @page { margin: 18mm; }
+}
+.print-only { display: none; }
