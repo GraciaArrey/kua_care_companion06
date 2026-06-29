@@ -1,7 +1,16 @@
-import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { usePrefs } from "@/lib/prefs";
+import { toast } from "sonner";
 
 type Reminder = {
   id: string;
@@ -21,7 +30,11 @@ const FIRED_KEY = "kua_reminder_fired_v1";
 
 function getFiredMap(): Record<string, string> {
   if (typeof window === "undefined") return {};
-  try { return JSON.parse(localStorage.getItem(FIRED_KEY) ?? "{}"); } catch { return {}; }
+  try {
+    return JSON.parse(localStorage.getItem(FIRED_KEY) ?? "{}");
+  } catch {
+    return {};
+  }
 }
 function setFired(id: string, dateKey: string) {
   const m = getFiredMap();
@@ -35,16 +48,24 @@ function todayKey() {
 
 function fireNotification(title: string, body: string) {
   if (typeof window === "undefined") return;
+
   if ("Notification" in window && Notification.permission === "granted") {
     try {
-      new Notification(title, { body, icon: "/favicon.ico", tag: `kua-${title}`, silent: false });
+      new Notification(title, {
+        body,
+        icon: "/favicon.ico",
+        tag: `kua-${title}`,
+        silent: false,
+      });
     } catch {
       // ignore
     }
   }
+
   // In-app toast fallback (always)
-  import("sonner").then(({ toast }) => {
-    toast(title, { description: body, duration: 8000 });
+  toast(title, {
+    description: body,
+    duration: 8000,
   });
 }
 
@@ -62,7 +83,10 @@ export function RemindersProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const loadReminders = useCallback(async () => {
-    if (!user) { remindersRef.current = []; return; }
+    if (!user) {
+      remindersRef.current = [];
+      return;
+    }
     const { data } = await supabase
       .from("reminders")
       .select("id,title,time_of_day,enabled")
@@ -76,10 +100,17 @@ export function RemindersProvider({ children }: { children: ReactNode }) {
     loadReminders();
     const ch = supabase
       .channel(`reminders-${user.id}`)
-      .on("postgres_changes", { event: "*", schema: "public", table: "reminders", filter: `user_id=eq.${user.id}` },
-        () => { loadReminders(); })
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "reminders", filter: `user_id=eq.${user.id}` },
+        () => {
+          loadReminders();
+        },
+      )
       .subscribe();
-    return () => { supabase.removeChannel(ch); };
+    return () => {
+      supabase.removeChannel(ch);
+    };
   }, [user, loadReminders]);
 
   // Tick every 30s, fire any due reminders that haven't fired today
@@ -99,9 +130,7 @@ export function RemindersProvider({ children }: { children: ReactNode }) {
         const nowMin = hh * 60 + mm;
         // fire if we're at or past the time, within a 30-min window, and not yet fired today
         if (nowMin >= dueMin && nowMin - dueMin <= 30 && fired[r.id] !== key) {
-          const body = lang === "fr"
-            ? "Un doux rappel pour toi."
-            : "A gentle nudge for you.";
+          const body = lang === "fr" ? "Un doux rappel pour toi." : "A gentle nudge for you.";
           fireNotification(r.title, body);
           setFired(r.id, key);
         }
@@ -109,7 +138,9 @@ export function RemindersProvider({ children }: { children: ReactNode }) {
     };
     check();
     tickRef.current = window.setInterval(check, 30_000) as unknown as number;
-    const onVis = () => { if (document.visibilityState === "visible") check(); };
+    const onVis = () => {
+      if (document.visibilityState === "visible") check();
+    };
     document.addEventListener("visibilitychange", onVis);
     return () => {
       if (tickRef.current) window.clearInterval(tickRef.current);
