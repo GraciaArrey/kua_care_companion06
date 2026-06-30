@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite dev",
-    "build": "vite build && cp -r dist/server/. dist/client/ && printf 'export { default } from \"./server.js\";\\n' > dist/client/_worker.js",
+    "build": "vite build && cp -r dist/server/. dist/client/ && printf 'export { default } from \"./server.js\";\\n' > dist/client/_worker.js && printf '{\\n  \"version\": 1,\\n  \"include\": [\"/*\"],\\n  \"exclude\": [\"/assets/*\"]\\n}\\n' > dist/client/_routes.json",
     "build:dev": "vite build --mode development",
     "preview": "vite preview",
     "lint": "eslint .",
