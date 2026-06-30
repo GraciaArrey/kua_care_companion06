@@ -8,6 +8,11 @@ import { PersonalLine, useNames } from "@/lib/personalize";
 import learningPathsImg from "@/assets/learning-paths.jpg";
 import { richSubjects, pickLang } from "@/lib/subjects-content";
 import { usePrefs } from "@/lib/prefs";
+import { useAuth } from "@/lib/auth";
+import { useChildren } from "@/lib/children";
+import { journeys as journeyContent } from "@/lib/kua-content";
+import { loadChildMilestones, milestoneId } from "@/lib/milestones";
+import { useEffect, useState } from "react";
 
 export const Route = createFileRoute("/growth")({
   head: () => ({ meta: [{ title: "Growth - KUA" }, { name: "description", content: "Developmental milestones celebrated, never graded - for children 12 and under." }] }),
@@ -68,9 +73,37 @@ const ringColors: Record<string, string> = {
   secondary: "oklch(0.85 0.13 85)",
 };
 
+type JourneyStat = { done: number; milestones: number; progress: number };
+
 function GrowthPage() {
   const names = useNames();
   const { lang } = usePrefs();
+  const { user } = useAuth();
+  const { activeChild } = useChildren();
+
+  // Per-journey stats. Demo defaults until real per-child data loads.
+  const [stats, setStats] = useState<Record<string, JourneyStat>>(() =>
+    Object.fromEntries(journeysEn.map((j) => [j.slug, { done: j.done, milestones: j.milestones, progress: j.progress }])),
+  );
+
+  useEffect(() => {
+    let cancelled = false;
+    async function hydrate() {
+      if (!user || !activeChild) return; // keep demo defaults when signed out
+      const saved = await loadChildMilestones(activeChild.id);
+      if (cancelled) return;
+      const next: Record<string, JourneyStat> = {};
+      for (const j of journeysEn) {
+        const total = journeyContent.find((c) => c.slug === j.slug)?.milestones.length ?? j.milestones;
+        let done = 0;
+        for (let i = 0; i < total; i++) if (saved[milestoneId(j.slug, i)]) done++;
+        next[j.slug] = { done, milestones: total, progress: total ? Math.round((done / total) * 100) : 0 };
+      }
+      setStats(next);
+    }
+    void hydrate();
+    return () => { cancelled = true; };
+  }, [user?.id, activeChild?.id]);
 
   const ui = lang === "fr"
     ? {
@@ -96,6 +129,7 @@ function GrowthPage() {
       <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
         {journeysEn.map((j) => {
           const title = lang === "fr" ? journeysFr[j.slug] ?? j.title : j.title;
+          const stat = stats[j.slug] ?? { done: j.done, milestones: j.milestones, progress: j.progress };
           return (
             <article key={j.slug} className={`rounded-3xl border border-border/60 bg-gradient-to-br ${tone(j.tone)} p-6 shadow-soft transition hover:-translate-y-0.5`}>
               <div className="flex items-start justify-between gap-4">
@@ -104,14 +138,14 @@ function GrowthPage() {
                     <j.icon className="h-5 w-5" />
                   </span>
                   <h3 className="mt-4 font-display text-lg font-bold text-foreground">{title}</h3>
-                  <p className="mt-1 text-xs text-muted-foreground">{ui.milestonesCelebrated(j.done, j.milestones)}</p>
+                  <p className="mt-1 text-xs text-muted-foreground">{ui.milestonesCelebrated(stat.done, stat.milestones)}</p>
                 </div>
-                <Ring value={j.progress} color={ringColors[j.tone]} />
+                <Ring value={stat.progress} color={ringColors[j.tone]} />
               </div>
 
               <div className="mt-5 flex items-center gap-1.5">
-                {Array.from({ length: j.milestones }).map((_, i) => (
-                  <span key={i} className={`h-2 flex-1 rounded-full ${i < j.done ? "bg-foreground/70" : "bg-card/70"}`} />
+                {Array.from({ length: stat.milestones }).map((_, i) => (
+                  <span key={i} className={`h-2 flex-1 rounded-full ${i < stat.done ? "bg-foreground/70" : "bg-card/70"}`} />
                 ))}
               </div>
 

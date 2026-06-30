@@ -259,18 +259,18 @@ function CaregiverPage() {
             </div>
             {loadingWeek && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
           </div>
-          <div className="mt-6 flex h-44 items-end gap-3">
+          <div className="mt-6 flex items-end gap-2 sm:gap-3">
             {week.map((w, i) => {
               const h = w.value === null ? 6 : Math.max(8, Math.round((w.value / max) * 100));
               return (
-                <div key={i} className="flex flex-1 flex-col items-center gap-2">
-                  <div className="flex h-full w-full items-end overflow-hidden rounded-2xl bg-muted">
+                <div key={i} className="flex min-w-0 flex-1 flex-col items-center gap-2">
+                  <div className="flex h-36 w-full items-end overflow-hidden rounded-2xl bg-muted">
                     <div className={`w-full rounded-2xl transition-all ${w.value === null ? "bg-muted-foreground/15" : "bg-gradient-primary"}`}
                       style={{ height: `${h}%` }}
                       title={w.value === null ? (lang === "fr" ? "Aucune entrée" : "No entry") : `${moodLabel(w.mood ?? "")}`} />
                   </div>
                   <span className="text-[11px] text-muted-foreground">{DAYS[i]}</span>
-                  {w.mood && <span className="text-[10px] font-semibold text-primary">{moodLabel(w.mood)}</span>}
+                  {w.mood && <span className="w-full truncate text-center text-[10px] font-semibold leading-tight text-primary">{moodLabel(w.mood)}</span>}
                 </div>
               );
             })}
