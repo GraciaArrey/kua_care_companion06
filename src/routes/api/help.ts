@@ -1,7 +1,6 @@
 import "@tanstack/react-start";
 import { createFileRoute } from "@tanstack/react-router";
-
-const GATEWAY = "https://ai.gateway.lovable.dev/v1/chat/completions";
+import { getAiProvider, AI_KEY_MISSING_MESSAGE } from "@/lib/ai-provider";
 
 type Msg = { role: "user" | "assistant"; content: string };
 type Body = { messages: Msg[]; lang?: "en" | "fr" };
@@ -76,8 +75,8 @@ export const Route = createFileRoute("/api/help")({
         if (!Array.isArray(body.messages) || body.messages.length === 0) {
           return new Response("Missing messages", { status: 400 });
         }
-        const key = process.env.LOVABLE_API_KEY;
-        if (!key) return new Response("Missing LOVABLE_API_KEY", { status: 500 });
+        const provider = getAiProvider();
+        if (!provider) return new Response(AI_KEY_MISSING_MESSAGE, { status: 500 });
 
         const lang: "en" | "fr" = body.lang === "fr" ? "fr" : "en";
         const trimmed = body.messages
@@ -85,11 +84,11 @@ export const Route = createFileRoute("/api/help")({
           .slice(-12)
           .map((m) => ({ role: m.role, content: m.content.slice(0, 2000) }));
 
-        const r = await fetch(GATEWAY, {
+        const r = await fetch(provider.url, {
           method: "POST",
-          headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${provider.key}` },
           body: JSON.stringify({
-            model: "google/gemini-2.5-flash",
+            model: provider.model,
             messages: [{ role: "system", content: system(lang) }, ...trimmed],
           }),
         });

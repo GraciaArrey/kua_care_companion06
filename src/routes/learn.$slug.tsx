@@ -34,23 +34,55 @@ function topicFromDb(t: DbTopic): Topic {
   };
 }
 
+function dbTopics(raw: unknown): Topic[] {
+  const arr = Array.isArray(raw) ? (raw as unknown as DbTopic[]) : [];
+  return arr.map(topicFromDb);
+}
+
 async function loadSubject(slug: string): Promise<RichSubject | null> {
   const stat = richSubjectBySlug(slug);
-  if (stat) return stat;
+
+  // Admin-created lessons tagged with this subject (category) — appended to the
+  // page so created lessons show up under their category, not just by direct slug.
+  const { data: bySubject } = await supabase
+    .from("lesson_notes")
+    .select("title_en,title_fr,topics,updated_at")
+    .eq("subject", slug)
+    .eq("published", true)
+    .order("updated_at", { ascending: true });
+  const extraTopics = (bySubject ?? []).flatMap((l) => dbTopics(l.topics));
+
+  if (stat) {
+    return extraTopics.length ? { ...stat, topics: [...stat.topics, ...extraTopics] } : stat;
+  }
+
+  // Not a built-in subject: a lesson may live at this exact slug (standalone page).
   const { data } = await supabase
     .from("lesson_notes")
     .select("slug,title_en,title_fr,blurb_en,blurb_fr,topics")
     .eq("slug", slug)
     .eq("published", true)
     .maybeSingle();
-  if (!data) return null;
-  const topics = Array.isArray(data.topics) ? (data.topics as unknown as DbTopic[]) : [];
-  return {
-    slug: data.slug,
-    title: { en: data.title_en, fr: data.title_fr || data.title_en },
-    blurb: { en: data.blurb_en ?? "", fr: data.blurb_fr || data.blurb_en || "" },
-    topics: topics.map(topicFromDb),
-  };
+  if (data) {
+    return {
+      slug: data.slug,
+      title: { en: data.title_en, fr: data.title_fr || data.title_en },
+      blurb: { en: data.blurb_en ?? "", fr: data.blurb_fr || data.blurb_en || "" },
+      topics: dbTopics(data.topics),
+    };
+  }
+
+  // Or it's a subject category that only has admin-created lessons.
+  if (extraTopics.length) {
+    const first = bySubject![0];
+    return {
+      slug,
+      title: { en: first.title_en, fr: first.title_fr || first.title_en },
+      blurb: { en: "", fr: "" },
+      topics: extraTopics,
+    };
+  }
+  return null;
 }
 
 export const Route = createFileRoute("/learn/$slug")({

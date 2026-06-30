@@ -1,7 +1,6 @@
 import "@tanstack/react-start";
 import { createFileRoute } from "@tanstack/react-router";
-
-const GATEWAY = "https://ai.gateway.lovable.dev/v1/chat/completions";
+import { getAiProvider, AI_KEY_MISSING_MESSAGE } from "@/lib/ai-provider";
 
 type Task = "rephrase" | "hero" | "insights" | "reflection" | "avatar";
 
@@ -48,20 +47,21 @@ export const Route = createFileRoute("/api/ai")({
         } catch {
           return new Response("Bad JSON", { status: 400 });
         }
-        const key = process.env.LOVABLE_API_KEY;
-        if (!key) return new Response("Missing LOVABLE_API_KEY", { status: 500 });
+        const provider = getAiProvider();
+        if (!provider) return new Response(AI_KEY_MISSING_MESSAGE, { status: 500 });
 
         const lang = body.lang === "fr" ? "fr" : "en";
         const system = systemFor(body.task, lang);
 
-        // Avatar uses image generation model
+        // Avatar uses an image-generation model (only available via the Lovable gateway).
         if (body.task === "avatar") {
           if (!body.imageDataUrl) return new Response("Missing image", { status: 400 });
-          const r = await fetch(GATEWAY, {
+          if (!provider.imageModel) return new Response("Image generation not available with the current AI provider.", { status: 501 });
+          const r = await fetch(provider.url, {
             method: "POST",
-            headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
+            headers: { "Content-Type": "application/json", Authorization: `Bearer ${provider.key}` },
             body: JSON.stringify({
-              model: "google/gemini-2.5-flash-image",
+              model: provider.imageModel,
               messages: [
                 {
                   role: "user",
@@ -99,11 +99,11 @@ export const Route = createFileRoute("/api/ai")({
           userPrompt = `Mood log (date:mood):\n${(body.data?.entries as string[] | undefined)?.join("\n") || "no data"}`;
         }
 
-        const r = await fetch(GATEWAY, {
+        const r = await fetch(provider.url, {
           method: "POST",
-          headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${provider.key}` },
           body: JSON.stringify({
-            model: "google/gemini-2.5-flash",
+            model: provider.model,
             messages: [
               { role: "system", content: system },
               { role: "user", content: userPrompt },
