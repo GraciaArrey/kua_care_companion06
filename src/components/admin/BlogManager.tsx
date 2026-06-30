@@ -205,6 +205,7 @@ function BlogEditor({
 }) {
   const [form, setForm] = useState(initial);
   const [saving, setSaving] = useState(false);
+  const [slugTouched, setSlugTouched] = useState(!isNew && !!(initial as { slug?: string }).slug);
   const set = <K extends keyof typeof form>(k: K, v: (typeof form)[K]) => setForm((f) => ({ ...f, [k]: v }));
 
   async function save() {
@@ -255,7 +256,7 @@ function BlogEditor({
               value={form.title_en}
               onChange={(e) => {
                 set("title_en", e.target.value);
-                if (isNew && !form.slug) set("slug", slugify(e.target.value));
+                if (isNew && !slugTouched) set("slug", slugify(e.target.value));
               }}
               className={inputCls}
             />
@@ -264,7 +265,7 @@ function BlogEditor({
             <input value={form.title_fr ?? ""} onChange={(e) => set("title_fr", e.target.value)} className={inputCls} />
           </Field>
           <Field label="Slug *">
-            <input value={form.slug} onChange={(e) => set("slug", slugify(e.target.value))} className={inputCls} />
+            <input value={form.slug} onChange={(e) => { setSlugTouched(true); set("slug", slugify(e.target.value)); }} className={inputCls} />
           </Field>
           <Field label="Category">
             <input

@@ -3,6 +3,7 @@ import { Loader2, Plus, Trash2, Pencil, Search, X, Eye, EyeOff, ExternalLink, Ch
 import { toast } from "sonner";
 import { Link } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
+import { richSubjects } from "@/lib/subjects-content";
 
 export type LessonTopic = {
   title_en: string;
@@ -44,7 +45,7 @@ const EMPTY_TOPIC: LessonTopic = {
 
 const EMPTY: Omit<Row, "id" | "created_at" | "updated_at"> = {
   slug: "",
-  subject: "general",
+  subject: "languages",
   title_en: "",
   title_fr: "",
   blurb_en: "",
@@ -223,6 +224,8 @@ function LessonEditor({
   const [form, setForm] = useState(initial);
   const [saving, setSaving] = useState(false);
   const [openIdx, setOpenIdx] = useState<number | null>(0);
+  // Track whether the admin manually edited the slug so auto-fill stops cleanly.
+  const [slugTouched, setSlugTouched] = useState(!isNew && !!(initial as Row).slug);
   const set = <K extends keyof typeof form>(k: K, v: (typeof form)[K]) => setForm((f) => ({ ...f, [k]: v }));
 
   function updateTopic(i: number, patch: Partial<LessonTopic>) {
@@ -282,7 +285,7 @@ function LessonEditor({
               value={form.title_en}
               onChange={(e) => {
                 set("title_en", e.target.value);
-                if (isNew && !form.slug) set("slug", slugify(e.target.value));
+                if (isNew && !slugTouched) set("slug", slugify(e.target.value));
               }}
               className={inputCls}
             />
@@ -291,29 +294,20 @@ function LessonEditor({
             <input value={form.title_fr ?? ""} onChange={(e) => set("title_fr", e.target.value)} className={inputCls} />
           </Field>
           <Field label="Slug *">
-            <input value={form.slug} onChange={(e) => set("slug", slugify(e.target.value))} className={inputCls} />
-          </Field>
-          <Field label="Subject">
             <input
-              value={form.subject}
-              onChange={(e) => set("subject", e.target.value)}
-              list="kua-lesson-subjects"
+              value={form.slug}
+              onChange={(e) => { setSlugTouched(true); set("slug", slugify(e.target.value)); }}
               className={inputCls}
             />
-            <datalist id="kua-lesson-subjects">
-              <option value="languages" />
-              <option value="arithmetic" />
-              <option value="writing" />
-              <option value="reading" />
-              <option value="art" />
-              <option value="music" />
-              <option value="pe" />
-              <option value="health-education" />
-              <option value="civics" />
-              <option value="cultural-studies" />
-              <option value="geography" />
-              <option value="environmental-science" />
-            </datalist>
+          </Field>
+          <Field label="Subject (category)">
+            <select value={form.subject} onChange={(e) => set("subject", e.target.value)} className={inputCls}>
+              {richSubjects.map((s) => (
+                <option key={s.slug} value={s.slug}>
+                  {s.title.en}
+                </option>
+              ))}
+            </select>
           </Field>
           <Field label="Published">
             <select value={String(form.published)} onChange={(e) => set("published", e.target.value === "true")} className={inputCls}>

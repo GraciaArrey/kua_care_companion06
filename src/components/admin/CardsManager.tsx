@@ -345,6 +345,8 @@ function CardEditor({
 }) {
   const [form, setForm] = useState(initial);
   const [saving, setSaving] = useState(false);
+  // Track manual key edits so auto-fill from the label stops cleanly.
+  const [keyTouched, setKeyTouched] = useState(!isNew && !!(initial as Row).key);
   const set = <K extends keyof typeof form>(k: K, v: (typeof form)[K]) => setForm((f) => ({ ...f, [k]: v }));
 
   async function save() {
@@ -394,7 +396,7 @@ function CardEditor({
               value={form.label_en}
               onChange={(e) => {
                 set("label_en", e.target.value);
-                if (isNew && !form.key) set("key", slugify(e.target.value));
+                if (isNew && !keyTouched) set("key", slugify(e.target.value));
               }}
               className={inputCls}
             />
@@ -403,7 +405,11 @@ function CardEditor({
             <input value={form.label_fr ?? ""} onChange={(e) => set("label_fr", e.target.value)} className={inputCls} />
           </Field>
           <Field label="Key *">
-            <input value={form.key} onChange={(e) => set("key", slugify(e.target.value))} className={inputCls} />
+            <input
+              value={form.key}
+              onChange={(e) => { setKeyTouched(true); set("key", slugify(e.target.value)); }}
+              className={inputCls}
+            />
           </Field>
           <Field label="Category">
             <select value={form.category} onChange={(e) => set("category", e.target.value)} className={inputCls}>
