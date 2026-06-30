@@ -3,6 +3,7 @@ import { Loader2, Plus, Trash2, Pencil, Search, X, Eye, EyeOff, Upload, Download
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { CATEGORIES } from "@/lib/comm-data";
+import { ImageUpload } from "@/components/admin/ImageUpload";
 
 type Row = {
   id: string;
@@ -430,13 +431,16 @@ function CardEditor({
               className={inputCls}
             />
           </Field>
-          <Field label="Image URL" className="sm:col-span-2">
-            <input
-              value={form.image_url ?? ""}
-              onChange={(e) => set("image_url", e.target.value)}
-              placeholder="https://… (leave blank to use swatch)"
-              className={inputCls}
-            />
+          <Field label="Card image" className="sm:col-span-2">
+            <div className="space-y-2">
+              <ImageUpload value={form.image_url ?? ""} onChange={(url) => set("image_url", url)} />
+              <input
+                value={form.image_url ?? ""}
+                onChange={(e) => set("image_url", e.target.value)}
+                placeholder="https://… (leave blank to use swatch)"
+                className={inputCls}
+              />
+            </div>
           </Field>
           <Field label="Swatch (hex)">
             <input

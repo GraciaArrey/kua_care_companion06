@@ -4,6 +4,9 @@ import { ArrowLeft, CheckCircle2, Circle, Sparkles } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { journeyBySlug, journeys, journeyForLang, type Journey } from "@/lib/kua-content";
 import { usePrefs } from "@/lib/prefs";
+import { useAuth } from "@/lib/auth";
+import { useChildren } from "@/lib/children";
+import { loadChildMilestones, setChildMilestone, milestoneId } from "@/lib/milestones";
 
 export const Route = createFileRoute("/journey/$slug")({
   head: ({ params }) => {
@@ -27,16 +30,44 @@ export const Route = createFileRoute("/journey/$slug")({
 function JourneyPage() {
   const { journey } = Route.useLoaderData() as { journey: Journey };
   const { lang } = usePrefs();
+  const { user } = useAuth();
+  const { activeChild } = useChildren();
   const localized = journeyForLang(journey, lang);
   const [items, setItems] = useState<Journey["milestones"]>(localized.milestones);
 
-  // Re-localize when language toggles, preserving done state by index.
+  // When signed in with an active child, milestone state comes from the database
+  // (defaulting to not-done). Signed out, we keep the hardcoded demo defaults.
   useEffect(() => {
-    setItems((prev) =>
-      localized.milestones.map((m, i) => ({ ...m, done: prev[i]?.done ?? m.done })),
-    );
+    let cancelled = false;
+    async function hydrate() {
+      if (user && activeChild) {
+        const saved = await loadChildMilestones(activeChild.id);
+        if (cancelled) return;
+        setItems(localized.milestones.map((m, i) => ({ ...m, done: saved[milestoneId(journey.slug, i)] ?? false })));
+      } else {
+        setItems((prev) => localized.milestones.map((m, i) => ({ ...m, done: prev[i]?.done ?? m.done })));
+      }
+    }
+    void hydrate();
+    return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [lang, journey.slug]);
+  }, [lang, journey.slug, user?.id, activeChild?.id]);
+
+  async function toggle(i: number) {
+    let nextDone = false;
+    setItems((arr) => arr.map((x, j) => {
+      if (j !== i) return x;
+      nextDone = !x.done;
+      return { ...x, done: nextDone };
+    }));
+    if (user && activeChild) {
+      const { error } = await setChildMilestone({ userId: user.id, childId: activeChild.id, slug: journey.slug, key: i, done: nextDone });
+      if (error) {
+        // revert on failure
+        setItems((arr) => arr.map((x, j) => (j === i ? { ...x, done: !nextDone } : x)));
+      }
+    }
+  }
 
   const done = items.filter((m) => m.done).length;
   const pct = Math.round((done / items.length) * 100);
@@ -68,7 +99,7 @@ function JourneyPage() {
           {items.map((m, i) => (
             <li key={`${i}-${m.title}`}>
               <button
-                onClick={() => setItems((arr) => arr.map((x, j) => j === i ? { ...x, done: !x.done } : x))}
+                onClick={() => void toggle(i)}
                 className={`flex w-full items-start gap-4 rounded-2xl border border-transparent px-4 py-3 text-left transition hover:border-border hover:bg-muted/40 ${m.done ? "opacity-70" : ""}`}
               >
                 {m.done ? <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-primary" /> : <Circle className="mt-0.5 h-5 w-5 shrink-0 text-muted-foreground" />}

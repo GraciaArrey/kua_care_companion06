@@ -161,6 +161,66 @@ export type Database = {
         }
         Relationships: []
       }
+      child_milestones: {
+        Row: {
+          child_id: string
+          created_at: string
+          done: boolean
+          id: string
+          journey_slug: string
+          milestone_key: string
+          note: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          child_id: string
+          created_at?: string
+          done?: boolean
+          id?: string
+          journey_slug: string
+          milestone_key: string
+          note?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          child_id?: string
+          created_at?: string
+          done?: boolean
+          id?: string
+          journey_slug?: string
+          milestone_key?: string
+          note?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      caregiver_notes: {
+        Row: {
+          body: string
+          created_at: string
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       expression_cards: {
         Row: {
           category: string
